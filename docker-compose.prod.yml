@@ -1,0 +1,75 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    command: ["sh", "/app/docker/entrypoint.sh"]
+    env_file:
+      - .env
+    environment:
+      MAXBOT_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      LOG_TO_FILES: "true"
+      LOG_DIR: /var/log/maxbot
+      DEBUG: "False"
+      WAIT_FOR_DB: "true"
+      DB_WAIT_MAX_ATTEMPTS: "30"
+      DB_WAIT_INTERVAL_SECONDS: "2"
+      # Миграции запускаются отдельным deployment-step до старта web-контейнера.
+      RUN_DB_MIGRATIONS: "false"
+      RUN_COLLECTSTATIC: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_data:/app/staticfiles
+      - logs_data:/var/log/maxbot
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; req = urllib.request.Request('http://127.0.0.1:8000/health/', headers={'X-Forwarded-Proto': 'https'}); urllib.request.urlopen(req, timeout=5)"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  migrate:
+    build: .
+    command: ["python", "manage.py", "migrate", "--noinput"]
+    env_file:
+      - .env
+    environment:
+      MAXBOT_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DEBUG: "False"
+      SECURITY_SSL_REDIRECT: "true"
+      SECURITY_SESSION_COOKIE_SECURE: "true"
+      SECURITY_CSRF_COOKIE_SECURE: "true"
+      SECURITY_HSTS_SECONDS: "31536000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  pg_data:
+  static_data:
+  logs_data:

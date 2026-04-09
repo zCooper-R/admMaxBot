@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Предпросмотр узла{% endblock %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'menu_builder:tree-root' %}">Конструктор меню</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Предпросмотр</li>
+  </ol>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Предпросмотр сценария: {{ node.title }}</h1>
+    <p class="page-subtitle">Проверка текста ответа и кнопок в виде, близком к экрану чата.</p>
+  </div>
+</div>
+
+<div class="panel-card">
+  <div class="chat-preview">
+    <div class="chat-preview__meta">
+      <span class="badge text-bg-primary">Узел: {{ node.get_node_type_display }}</span>
+      {% if node.is_active %}
+        <span class="badge text-bg-success">Активен</span>
+      {% else %}
+        <span class="badge text-bg-secondary">Неактивен</span>
+      {% endif %}
+    </div>
+
+    <div class="chat-preview__surface">
+      <div class="chat-preview__bubble">
+        <div class="chat-preview__author">Бот</div>
+        <div class="chat-preview__text">{{ preview.text|linebreaksbr }}</div>
+      </div>
+
+      <div class="chat-preview__keyboard">
+        {% for row in preview.buttons %}
+          <div class="chat-preview__row">
+            {% for button in row %}
+              <span class="badge rounded-pill text-bg-light border preview-button-chip">{{ button.text }}</span>
+            {% endfor %}
+          </div>
+        {% empty %}
+          <span class="text-muted">Кнопок нет</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% if events %}
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>Время</th>
+          <th>Тип</th>
+          <th>Ошибка</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in events %}
+          <tr>
+            <td>{{ event.received_at|date:'d.m.Y H:i' }}</td>
+            <td><span class="badge-soft">{{ event.event_type }}</span></td>
+            <td class="text-danger">{{ event.error_message|default:'-' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="icon"><i class="bi bi-check2-circle"></i></div>
+    Ошибок нет.
+  </div>
+{% endif %}

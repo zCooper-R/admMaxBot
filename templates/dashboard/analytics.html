@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Аналитика{% endblock %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Дашборд</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Аналитика</li>
+  </ol>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Дневная аналитика</h1>
+    <p class="page-subtitle">Сводные агрегаты по пользователям, активности и ошибкам по дням.</p>
+  </div>
+</div>
+
+<div class="panel-card">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Пользователи</th>
+          <th>Активные</th>
+          <th>События</th>
+          <th>Клики</th>
+          <th>Ошибки</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in stats %}
+          <tr>
+            <td>{{ row.date }}</td>
+            <td>{{ row.users_total }}</td>
+            <td>{{ row.active_users }}</td>
+            <td>{{ row.events_total }}</td>
+            <td>{{ row.button_clicks_total }}</td>
+            <td>{{ row.errors_total }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">
+              <div class="empty-state my-2">Агрегации пока нет.</div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

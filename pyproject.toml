@@ -1,0 +1,50 @@
+[project]
+name = "maxbotv3"
+version = "0.1.0"
+description = "Production-ready MAX bot control panel on Django"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "Django>=5.0,<6.0",
+  "django-environ>=0.11.2",
+  "psycopg[binary]>=3.2.0",
+  "httpx>=0.27.0",
+  "gunicorn>=23.0.0",
+  "whitenoise>=6.7.0",
+  "cryptography>=42.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "pytest-django>=4.8.0",
+  "factory-boy>=3.3.0",
+  "ruff>=0.5.0",
+  "black>=24.4.0",
+  "mypy>=1.10.0",
+  "types-requests>=2.32.0.20240622",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_test.py"]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = []
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+

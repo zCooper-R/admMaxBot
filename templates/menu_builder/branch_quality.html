@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Проверка ветки меню{% endblock %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'menu_builder:tree-root' %}">Конструктор меню</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Проверка ветки</li>
+  </ol>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Проверка ветки меню</h1>
+    <p class="page-subtitle">
+      {% if root_node %}
+        Анализ ветки, начиная с узла "{{ root_node.title }}".
+      {% else %}
+        Анализ всего дерева меню.
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<div class="panel-card">
+  {% if report.items %}
+    <div class="menu-quality-list">
+      {% for item in report.items %}
+        <div class="menu-quality-item">
+          <strong>{{ item.node.title }}</strong>
+          <div class="small text-muted">{{ item.node.slug }}</div>
+          {% for check in item.checks %}
+            <div class="menu-quality-item menu-quality-item--{{ check.level }}">
+              <span>{{ check.message }}</span>
+            </div>
+          {% endfor %}
+          <div class="mt-2 d-flex flex-wrap gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'menu_builder:edit' item.node.id %}">Изменить узел</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'menu_builder:preview' item.node.id %}">Открыть preview</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="icon"><i class="bi bi-shield-check"></i></div>
+      Явных проблем в выбранной ветке не найдено.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

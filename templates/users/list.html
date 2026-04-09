@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Пользователи{% endblock %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Дашборд</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Пользователи</li>
+  </ol>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Пользователи бота</h1>
+    <p class="page-subtitle">Поиск и обзор активности пользователей по внешнему идентификатору.</p>
+  </div>
+</div>
+
+<div class="panel-card mb-3">
+  <form method="get">
+    <label class="form-label" for="id_q">Поиск по внешнему ID</label>
+    <div class="input-group">
+      <input id="id_q" class="form-control" name="q" value="{{ query }}" placeholder="Введите часть внешнего ID">
+      <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Найти</button>
+    </div>
+  </form>
+</div>
+
+<div class="panel-card">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Внешний ID</th>
+          <th>Имя</th>
+          <th>First seen</th>
+          <th>Last seen</th>
+          <th>Взаимодействий</th>
+          <th>Активность</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td><code>{{ user.external_user_id }}</code></td>
+            <td>{{ user.display_name|default:'-' }}</td>
+            <td>{{ user.first_seen_at|date:'d.m.Y H:i' }}</td>
+            <td>{{ user.last_seen_at|date:'d.m.Y H:i' }}</td>
+            <td>{{ user.interactions_count }}</td>
+            <td>
+              {% if user.is_active %}
+                <span class="badge text-bg-success">Активен</span>
+              {% else %}
+                <span class="badge text-bg-secondary">Не активен</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6">
+              <div class="empty-state my-2">
+                <div class="icon"><i class="bi bi-people"></i></div>
+                Пользователей пока нет.
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+

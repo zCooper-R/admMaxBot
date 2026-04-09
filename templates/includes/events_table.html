@@ -1,0 +1,29 @@
+{% if events %}
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>Время</th>
+          <th>Тип</th>
+          <th>Пользователь</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in events %}
+          <tr>
+            <td>{{ event.received_at|date:'d.m.Y H:i' }}</td>
+            <td><span class="badge-soft">{{ event.event_type }}</span></td>
+            <td>{% if event.user %}<code>{{ event.user.external_user_id }}</code>{% else %}-{% endif %}</td>
+            <td>{{ event.get_status_display }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">
+    <div class="icon"><i class="bi bi-inbox"></i></div>
+    Пока нет событий.
+  </div>
+{% endif %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Настройки бота{% endblock %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Дашборд</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Настройки бота</li>
+  </ol>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Настройки бота</h1>
+    <p class="page-subtitle">Управление токеном, webhook и параметрами окружения бота.</p>
+  </div>
+</div>
+
+<div class="panel-card">
+  <form method="post" class="form-grid" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="form-col-6">
+        <label class="form-label" for="{{ field.id_for_label }}">
+          {{ field.label }}
+          {% if field.field.required %}<span class="required">*</span>{% endif %}
+        </label>
+        {{ field }}
+        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% if field.errors %}<div class="form-errors">{{ field.errors|join:', ' }}</div>{% endif %}
+      </div>
+    {% endfor %}
+    <div class="form-col-12 sticky-actions d-flex justify-content-end">
+      <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> Сохранить настройки</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

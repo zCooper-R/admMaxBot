@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumbs %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'menu_builder:tree-root' %}">Конструктор меню</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+  </ol>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-subtitle">Редактирование параметров узла и поведения кнопки в рантайме.</p>
+  </div>
+</div>
+
+<div class="panel-card">
+  <div class="subtle-box mb-3">
+    <div class="small text-muted">Подсказки по типам узлов</div>
+    <div class="small mt-1">`Меню` — раздел с дочерними кнопками.</div>
+    <div class="small">`Сообщение` — обычный ответ пользователю, нужен текст ответа.</div>
+    <div class="small">`Ссылка` — в `payload` нужен JSON с `url`, например `{"url": "https://example.com"}`.</div>
+  </div>
+
+  <form method="post" class="form-grid" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="{% if field.name == 'response_text' or field.name == 'payload' or field.name == 'admin_comment' %}form-col-12{% else %}form-col-6{% endif %}">
+        <label class="form-label" for="{{ field.id_for_label }}">
+          {{ field.label }}
+          {% if field.field.required %}<span class="required">*</span>{% endif %}
+        </label>
+        {{ field }}
+        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% if field.errors %}<div class="form-errors">{{ field.errors|join:', ' }}</div>{% endif %}
+      </div>
+    {% endfor %}
+    <div class="form-col-12 sticky-actions d-flex justify-content-end">
+      <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> Сохранить</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  const titleInput = document.getElementById("id_title");
+  const slugInput = document.getElementById("id_slug");
+  const nodeTypeInput = document.getElementById("id_node_type");
+  const payloadInput = document.getElementById("id_payload");
+  if (!titleInput || !slugInput) return;
+
+  const ruMap = {
+    "а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh","з":"z","и":"i","й":"y",
+    "к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f",
+    "х":"h","ц":"ts","ч":"ch","ш":"sh","щ":"sch","ъ":"","ы":"y","ь":"","э":"e","ю":"yu","я":"ya"
+  };
+
+  const translit = (value) =>
+    value
+      .toLowerCase()
+      .split("")
+      .map((ch) => (ruMap[ch] !== undefined ? ruMap[ch] : ch))
+      .join("");
+
+  const slugify = (value) => translit(value)
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  const isAutoSlugForTitle = () => slugInput.value.trim() === slugify(titleInput.value);
+  let slugTouched = Boolean(slugInput.value.trim()) && !isAutoSlugForTitle();
+  slugInput.addEventListener("input", () => {
+    slugInput.value = slugify(slugInput.value);
+    slugTouched = Boolean(slugInput.value.trim()) && !isAutoSlugForTitle();
+  });
+
+  titleInput.addEventListener("input", () => {
+    if (!slugTouched) {
+      slugInput.value = slugify(titleInput.value);
+    }
+  });
+
+  const syncPayloadHint = () => {
+    if (!nodeTypeInput || !payloadInput) return;
+    if (nodeTypeInput.value === "link") {
+      payloadInput.placeholder = '{"url": "https://example.com"}';
+    } else {
+      payloadInput.placeholder = "";
+    }
+  };
+
+  if (nodeTypeInput && payloadInput) {
+    nodeTypeInput.addEventListener("change", syncPayloadHint);
+    syncPayloadHint();
+  }
+})();
+</script>
+{% endblock %}

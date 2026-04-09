@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Дашборд{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Операционный дашборд</h1>
+    <p class="page-subtitle">Ключевые метрики по пользователям, событиям и стабильности webhook</p>
+  </div>
+  <a class="btn btn-outline-primary" href="{% url 'analytics:overview' %}">
+    <i class="bi bi-graph-up"></i> Подробная аналитика
+  </a>
+</div>
+
+<div class="kpi-grid mb-3">
+  <div class="kpi-item"><div class="kpi-card"><span class="kpi-label">Всего пользователей</span><strong>{{ users_total }}</strong></div></div>
+  <div class="kpi-item"><div class="kpi-card"><span class="kpi-label">Новых за 7 дней</span><strong>{{ users_new }}</strong></div></div>
+  <div class="kpi-item"><div class="kpi-card"><span class="kpi-label">Всего событий</span><strong>{{ events_total }}</strong></div></div>
+  <div class="kpi-item"><div class="kpi-card"><span class="kpi-label">Ошибки обработки</span><strong>{{ errors_total }}</strong></div></div>
+  <div class="kpi-item"><div class="kpi-card"><span class="kpi-label">Статус webhook</span><strong>{{ webhook_status }}</strong></div></div>
+  <div class="kpi-item"><div class="kpi-card"><span class="kpi-label">Последнее событие</span><strong>{% if last_event %}{{ last_event.event_type }}{% else %}Нет{% endif %}</strong></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-xl-8">
+    <div class="panel-card h-100">
+      <h2 class="panel-title">Активность по дням</h2>
+      <p class="panel-note">Динамика входящих событий за последние дни.</p>
+      <canvas id="activityChart" height="88"></canvas>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="panel-card h-100">
+      <h2 class="panel-title">Популярные разделы меню</h2>
+      {% if top_nodes %}
+        <ul class="list-group list-group-flush">
+          {% for item in top_nodes %}
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <span>{{ item.related_node__title }}</span>
+              <span class="badge-soft">{{ item.total }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state">
+          <div class="icon"><i class="bi bi-bar-chart"></i></div>
+          Пока нет данных по популярности разделов.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-1">
+  <div class="col-xl-6">
+    <div class="panel-card h-100">
+      <h2 class="panel-title">Последние ошибки</h2>
+      {% include 'includes/errors_table.html' with events=latest_errors %}
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="panel-card h-100">
+      <h2 class="panel-title">Последние webhook-события</h2>
+      {% include 'includes/events_table.html' with events=latest_events %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(() => {
+  const ctx = document.getElementById("activityChart");
+  if (!ctx) return;
+
+  let chart = null;
+  const labels = {{ activity_labels|safe }};
+  const values = {{ activity_values|safe }};
+
+  const buildPalette = (theme) => {
+    if (theme === "dark") {
+      return {
+        strokeColor: "#87b3ff",
+        fillColor: "rgba(135, 179, 255, 0.2)",
+        gridColor: "rgba(161, 184, 217, 0.18)",
+        tickColor: "#b8c7df",
+      };
+    }
+    return {
+      strokeColor: "#2154c5",
+      fillColor: "rgba(33,84,197,.11)",
+      gridColor: "rgba(71, 85, 105, 0.14)",
+      tickColor: "#475569",
+    };
+  };
+
+  const renderChart = (theme) => {
+    const palette = buildPalette(theme);
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [{
+          label: "События",
+          data: values,
+          tension: 0.34,
+          borderWidth: 2,
+          pointRadius: 2,
+          borderColor: palette.strokeColor,
+          backgroundColor: palette.fillColor,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: palette.tickColor }, grid: { color: palette.gridColor } },
+          y: { ticks: { color: palette.tickColor }, grid: { color: palette.gridColor }, beginAtZero: true }
+        }
+      }
+    });
+  };
+
+  renderChart(document.documentElement.getAttribute("data-theme") || "light");
+  document.addEventListener("theme-changed", (event) => {
+    renderChart(event.detail?.theme || "light");
+  });
+})();
+</script>
+{% endblock %}
