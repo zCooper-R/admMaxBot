@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Ошибки{% endblock %}
+{% block breadcrumbs %}
+{% url 'dashboard:home' as dashboard_url %}
+{% include 'includes/breadcrumbs.html' with breadcrumb_root_url=dashboard_url breadcrumb_root_label='Дашборд' breadcrumb_root_icon='bi bi-grid' breadcrumb_current_label='Ошибки' %}
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Ошибки обработки</h1>
+    <p class="page-subtitle">Последние неуспешные события для контроля стабильности интеграции.</p>
+  </div>
+</div>
+<div class="panel-card">
+  {% include 'includes/errors_table.html' with events=errors %}
+</div>
+{% endblock %}

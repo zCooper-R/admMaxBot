@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Аудит{% endblock %}
+{% block breadcrumbs %}
+{% url 'dashboard:home' as dashboard_url %}
+{% include 'includes/breadcrumbs.html' with breadcrumb_root_url=dashboard_url breadcrumb_root_label='Дашборд' breadcrumb_root_icon='bi bi-grid' breadcrumb_current_label='Аудит' %}
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Аудит изменений</h1>
+    <p class="page-subtitle">Журнал действий пользователей и системных операций.</p>
+  </div>
+</div>
+<div class="panel-card">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Пользователь</th>
+          <th>Действие</th>
+          <th>Сущность</th>
+          <th>ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in logs %}
+          <tr>
+            <td>{{ item.created_at|date:'d.m.Y H:i' }}</td>
+            <td>{% if item.actor %}{{ item.actor.username }}{% else %}<span class="text-muted">Система</span>{% endif %}</td>
+            <td><span class="badge-soft">{{ item.action }}</span></td>
+            <td>{{ item.entity_type }}</td>
+            <td>{{ item.entity_id }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">
+              <div class="empty-state my-2">
+                <div class="icon"><i class="bi bi-journal-x"></i></div>
+                Записей пока нет.
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

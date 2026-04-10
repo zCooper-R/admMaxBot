@@ -1,17 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}Конструктор меню{% endblock %}
 {% block breadcrumbs %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'menu_builder:tree-root' %}">Корень</a></li>
-    {% for crumb in breadcrumbs %}
-      <li class="breadcrumb-item"><a href="{% url 'menu_builder:tree-child' crumb.id %}">{{ crumb.title }}</a></li>
-    {% endfor %}
-    {% if parent %}
-      <li class="breadcrumb-item active" aria-current="page">Ветвь</li>
-    {% endif %}
-  </ol>
-</nav>
+{% url 'menu_builder:tree-root' as menu_builder_url %}
+{% if parent %}
+{% include 'includes/breadcrumbs.html' with breadcrumb_root_url=menu_builder_url breadcrumb_root_label='Конструктор меню' breadcrumb_root_icon='bi bi-diagram-3' breadcrumb_context_text='Текущий раздел: '|add:parent.title %}
+{% else %}
+{% include 'includes/breadcrumbs.html' with breadcrumb_root_url=menu_builder_url breadcrumb_root_label='Конструктор меню' breadcrumb_root_icon='bi bi-diagram-3' breadcrumb_empty_label='Корневой уровень' breadcrumb_context_text='Весь каталог меню' %}
+{% endif %}
 {% endblock %}
 {% block content %}
 <div class="page-header">

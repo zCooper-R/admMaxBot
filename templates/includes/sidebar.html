@@ -1,0 +1,22 @@
+<aside class="app-sidebar" id="app-sidebar" aria-label="Основная навигация">
+  <div class="sidebar-head">
+    <div>
+      <div class="sidebar-brand">MAX Bot Panel</div>
+      <p class="sidebar-caption">Внутренняя панель управления</p>
+    </div>
+    <button class="sidebar-close d-lg-none" type="button" id="sidebar-close" aria-label="Свернуть меню">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+  <nav class="app-nav">
+    <a class="nav-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard:home' %}"><i class="bi bi-grid"></i> Дашборд</a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}" href="{% url 'analytics:overview' %}"><i class="bi bi-graph-up"></i> Аналитика</a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'bot' %}active{% endif %}" href="{% url 'bot:settings' %}"><i class="bi bi-sliders"></i> Настройки бота</a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'webhooks' and request.resolver_match.url_name == 'control' %}active{% endif %}" href="{% url 'webhooks:control' %}"><i class="bi bi-broadcast-pin"></i> Webhook</a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'menu_builder' %}active{% endif %}" href="{% url 'menu_builder:tree-root' %}"><i class="bi bi-diagram-3"></i> Конструктор меню</a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'webhooks' and request.resolver_match.url_name == 'events' %}active{% endif %}" href="{% url 'webhooks:events' %}"><i class="bi bi-list-check"></i> События</a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'core' and request.resolver_match.url_name == 'errors' %}active{% endif %}" href="{% url 'core:errors' %}"><i class="bi bi-bug"></i> Ошибки</a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'core' and request.resolver_match.url_name == 'users' %}active{% endif %}" href="{% url 'core:users' %}"><i class="bi bi-people"></i> Пользователи</a>
+    <a class="nav-link {% if request.resolver_match.app_name == 'core' and request.resolver_match.url_name == 'audit' %}active{% endif %}" href="{% url 'core:audit' %}"><i class="bi bi-clock-history"></i> Аудит</a>
+  </nav>
+</aside>

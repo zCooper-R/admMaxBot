@@ -9,6 +9,7 @@ staticfiles/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-logs/
+/logs/
+!templates/logs/
 .idea/
 .codex/
