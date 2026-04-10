@@ -1,0 +1,40 @@
+<nav class="breadcrumb-bar" aria-label="breadcrumb">
+  <ol class="breadcrumb breadcrumb--rich">
+    {% if breadcrumb_root_label %}
+      <li class="breadcrumb-item">
+        {% if breadcrumb_root_url %}
+          <a class="breadcrumb-home" href="{{ breadcrumb_root_url }}">
+            {% if breadcrumb_root_icon %}
+              <i class="{{ breadcrumb_root_icon }}" aria-hidden="true"></i>
+            {% endif %}
+            <span>{{ breadcrumb_root_label }}</span>
+          </a>
+        {% else %}
+          <span class="breadcrumb-home">
+            {% if breadcrumb_root_icon %}
+              <i class="{{ breadcrumb_root_icon }}" aria-hidden="true"></i>
+            {% endif %}
+            <span>{{ breadcrumb_root_label }}</span>
+          </span>
+        {% endif %}
+      </li>
+    {% endif %}
+    {% if breadcrumbs %}
+      {% for crumb in breadcrumbs %}
+        {% if forloop.last and not breadcrumb_current_label %}
+          <li class="breadcrumb-item active" aria-current="page">{{ crumb.title }}</li>
+        {% else %}
+          <li class="breadcrumb-item"><a href="{% url 'menu_builder:tree-child' crumb.id %}">{{ crumb.title }}</a></li>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if breadcrumb_current_label %}
+      <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb_current_label }}</li>
+    {% elif not breadcrumbs %}
+      <li class="breadcrumb-item active" aria-current="page">{{ breadcrumb_empty_label|default:'Раздел' }}</li>
+    {% endif %}
+  </ol>
+  {% if breadcrumb_context_text %}
+    <span class="breadcrumb-context">{{ breadcrumb_context_text }}</span>
+  {% endif %}
+</nav>

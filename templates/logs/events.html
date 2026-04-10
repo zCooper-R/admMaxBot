@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}События webhook{% endblock %}
+{% block breadcrumbs %}
+{% url 'dashboard:home' as dashboard_url %}
+{% include 'includes/breadcrumbs.html' with breadcrumb_root_url=dashboard_url breadcrumb_root_label='Дашборд' breadcrumb_root_icon='bi bi-grid' breadcrumb_current_label='События webhook' %}
+{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Журнал webhook-событий</h1>
+    <p class="page-subtitle">Фильтруйте события по типу и статусу для быстрого анализа инцидентов.</p>
+  </div>
+</div>
+
+<div class="panel-card mb-3">
+  <form class="form-grid" method="get">
+    <div class="form-col-6">
+      <label class="form-label" for="id_event_type">Тип события</label>
+      <input id="id_event_type" class="form-control" name="event_type" value="{{ event_type }}" placeholder="Например: message_created">
+    </div>
+    <div class="form-col-6">
+      <label class="form-label" for="id_status">Статус</label>
+      <select id="id_status" class="form-select" name="status">
+        <option value="">Все</option>
+        <option value="received" {% if status == "received" %}selected{% endif %}>Получено</option>
+        <option value="processed" {% if status == "processed" %}selected{% endif %}>Обработано</option>
+        <option value="failed" {% if status == "failed" %}selected{% endif %}>Ошибка</option>
+        <option value="duplicate" {% if status == "duplicate" %}selected{% endif %}>Дубликат</option>
+        <option value="rejected" {% if status == "rejected" %}selected{% endif %}>Отклонено</option>
+      </select>
+    </div>
+    <div class="form-col-12 d-flex flex-wrap gap-2">
+      <button class="btn btn-primary" type="submit"><i class="bi bi-funnel"></i> Применить фильтры</button>
+      <a class="btn btn-outline-secondary" href="{% url 'webhooks:events' %}">Сбросить</a>
+    </div>
+  </form>
+</div>
+
+<div class="panel-card">
+  {% include 'includes/events_table.html' with events=events %}
+</div>
+{% endblock %}

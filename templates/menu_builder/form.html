@@ -1,12 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}{{ title }}{% endblock %}
 {% block breadcrumbs %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'menu_builder:tree-root' %}">Конструктор меню</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
-  </ol>
-</nav>
+{% url 'menu_builder:tree-root' as menu_builder_url %}
+{% include 'includes/breadcrumbs.html' with breadcrumb_root_url=menu_builder_url breadcrumb_root_label='Конструктор меню' breadcrumb_root_icon='bi bi-diagram-3' breadcrumb_current_label=title %}
 {% endblock %}
 {% block content %}
 <div class="page-header">
