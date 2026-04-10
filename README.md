@@ -51,6 +51,12 @@
 .\.venv\Scripts\python manage.py check
 ```
 
+## Памятка по Git
+
+Для повседневной работы между домом и работой смотри:
+
+- [docs/GIT_WORKFLOW.md](/C:/Python%20projects/MyProjects/MaxBotV3/docs/GIT_WORKFLOW.md)
+
 ## CI/CD
 
 В репозитории настроены GitHub Actions:
