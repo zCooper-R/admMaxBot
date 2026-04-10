@@ -2,9 +2,6 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - "codex/**"
   pull_request:
     branches:
       - main
@@ -36,7 +33,7 @@ jobs:
           MAXBOT_ENV: development
           DATABASE_URL: "sqlite:///db.sqlite3"
           PUBLIC_BASE_URL: "http://127.0.0.1:8000"
-          DATA_ENCRYPTION_KEY: "ci-encryption-key"
+          DATA_ENCRYPTION_KEY: "YiIvd4VZTLWN1iUu01AH_Kzytj2c7xbFjHjRJfzJK88="
         run: python manage.py check
 
       - name: Run test suite
@@ -46,5 +43,5 @@ jobs:
           MAXBOT_ENV: development
           DATABASE_URL: "sqlite:///db.sqlite3"
           PUBLIC_BASE_URL: "http://127.0.0.1:8000"
-          DATA_ENCRYPTION_KEY: "ci-encryption-key"
+          DATA_ENCRYPTION_KEY: "YiIvd4VZTLWN1iUu01AH_Kzytj2c7xbFjHjRJfzJK88="
         run: pytest -q
