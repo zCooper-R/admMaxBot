@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 from pathlib import Path
+from urllib.parse import urlparse
 
 import environ
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
+    APP_ENV=(str, ""),
     DEBUG=(bool, False),
-    MAXBOT_ENV=(str, "development"),
+    MAXBOT_ENV=(str, ""),
     SECRET_KEY=(str, ""),
     ALLOWED_HOSTS=(list, []),
     CSRF_TRUSTED_ORIGINS=(list, []),
     DATABASE_URL=(str, f"sqlite:///{(BASE_DIR / 'db.sqlite3').as_posix()}"),
+    BASE_URL=(str, ""),
+    WEBHOOK_URL=(str, ""),
     MAX_API_BASE_URL=(str, "https://platform-api.max.ru"),
     MAX_API_TIMEOUT=(int, 20),
     PUBLIC_BASE_URL=(str, ""),
@@ -24,6 +28,15 @@ env = environ.Env(
     SECURITY_HSTS_INCLUDE_SUBDOMAINS=(bool, True),
     SECURITY_HSTS_PRELOAD=(bool, False),
     INTEGRATION_STATUS_CACHE_TTL=(int, 60),
+    CELERY_BROKER_URL=(str, "redis://redis:6379/0"),
+    CELERY_RESULT_BACKEND=(str, "redis://redis:6379/1"),
+    CELERY_TASK_ALWAYS_EAGER=(bool, False),
+    CELERY_REFRESH_INTEGRATION_STATUS_INTERVAL_SECONDS=(int, 120),
+    CELERY_SYNC_DAILY_STATS_INTERVAL_SECONDS=(int, 15 * 60),
+    CELERY_CLEANUP_TECHNICAL_LOGS_INTERVAL_SECONDS=(int, 24 * 60 * 60),
+    DAILY_STATS_SYNC_WINDOW_DAYS=(int, 120),
+    WEBHOOK_EVENT_RETENTION_DAYS=(int, 90),
+    WEBHOOK_OPERATION_LOG_RETENTION_DAYS=(int, 90),
     LOG_LEVEL=(str, "INFO"),
     DJANGO_LOG_LEVEL=(str, "INFO"),
     LOG_TO_FILES=(bool, False),
@@ -34,7 +47,7 @@ env = environ.Env(
 
 environ.Env.read_env(BASE_DIR / ".env")
 
-MAXBOT_ENV = env("MAXBOT_ENV").strip().lower()
+MAXBOT_ENV = (env("MAXBOT_ENV").strip() or env("APP_ENV").strip() or "development").lower()
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
@@ -130,9 +143,18 @@ LOGOUT_REDIRECT_URL = "accounts:login"
 
 MAX_API_BASE_URL = env("MAX_API_BASE_URL")
 MAX_API_TIMEOUT = env("MAX_API_TIMEOUT")
-PUBLIC_BASE_URL = env("PUBLIC_BASE_URL").strip()
+BASE_URL = env("BASE_URL").strip()
+WEBHOOK_URL = env("WEBHOOK_URL").strip()
+PUBLIC_BASE_URL = (env("PUBLIC_BASE_URL").strip() or BASE_URL).rstrip("/")
+if not PUBLIC_BASE_URL and WEBHOOK_URL:
+    parsed_webhook_url = urlparse(WEBHOOK_URL)
+    if parsed_webhook_url.scheme and parsed_webhook_url.netloc:
+        PUBLIC_BASE_URL = f"{parsed_webhook_url.scheme}://{parsed_webhook_url.netloc}"
 DATA_ENCRYPTION_KEY = env("DATA_ENCRYPTION_KEY").strip()
 INTEGRATION_STATUS_CACHE_TTL = env("INTEGRATION_STATUS_CACHE_TTL")
+DAILY_STATS_SYNC_WINDOW_DAYS = env("DAILY_STATS_SYNC_WINDOW_DAYS")
+WEBHOOK_EVENT_RETENTION_DAYS = env("WEBHOOK_EVENT_RETENTION_DAYS")
+WEBHOOK_OPERATION_LOG_RETENTION_DAYS = env("WEBHOOK_OPERATION_LOG_RETENTION_DAYS")
 LOG_LEVEL = env("LOG_LEVEL")
 DJANGO_LOG_LEVEL = env("DJANGO_LOG_LEVEL")
 LOG_TO_FILES = env("LOG_TO_FILES")
@@ -159,15 +181,37 @@ if MAXBOT_ENV == "production":
         "TIMEOUT": INTEGRATION_STATUS_CACHE_TTL,
     }
 
-# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "http")
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
+CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER")
+CELERY_TASK_IGNORE_RESULT = True
+CELERY_TASK_TIME_LIMIT = 60
+CELERY_TASK_SOFT_TIME_LIMIT = 45
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BEAT_SCHEDULE = {
+    "refresh-integration-status": {
+        "task": "apps.core.tasks.refresh_integration_status_task",
+        "schedule": env("CELERY_REFRESH_INTEGRATION_STATUS_INTERVAL_SECONDS"),
+    },
+    "sync-daily-stats": {
+        "task": "apps.analytics.tasks.sync_daily_stats_task",
+        "schedule": env("CELERY_SYNC_DAILY_STATS_INTERVAL_SECONDS"),
+    },
+    "cleanup-technical-logs": {
+        "task": "apps.bot.tasks.cleanup_technical_logs_task",
+        "schedule": env("CELERY_CLEANUP_TECHNICAL_LOGS_INTERVAL_SECONDS"),
+    },
+}
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = "DENY"
 SECURE_SSL_REDIRECT = env("SECURITY_SSL_REDIRECT", 0)
 SESSION_COOKIE_SECURE = env("SECURITY_SESSION_COOKIE_SECURE", 0)
 CSRF_COOKIE_SECURE = env("SECURITY_CSRF_COOKIE_SECURE", 0)
-# SECURE_HSTS_SECONDS = env("SECURITY_HSTS_SECONDS")
+SECURE_HSTS_SECONDS = env("SECURITY_HSTS_SECONDS")
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env("SECURITY_HSTS_INCLUDE_SUBDOMAINS", 0)
 SECURE_HSTS_PRELOAD = env("SECURITY_HSTS_PRELOAD", 0)
 

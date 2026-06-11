@@ -32,6 +32,9 @@ security_logger = logging.getLogger("errors")
 
 
 def build_public_webhook_url(request: HttpRequest, webhook_path: str) -> str:
+    configured_webhook_url = (getattr(settings, "WEBHOOK_URL", "") or "").strip()
+    if configured_webhook_url:
+        return configured_webhook_url
     public_base_url = (getattr(settings, "PUBLIC_BASE_URL", "") or "").strip().rstrip("/")
     normalized_path = webhook_path if webhook_path.startswith("/") else f"/{webhook_path}"
     if public_base_url:

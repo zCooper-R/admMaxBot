@@ -1,6 +1,6 @@
 [project]
 name = "maxbotv3"
-version = "0.2.0"
+version = "0.3.0"
 description = "Production-ready MAX bot control panel on Django"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,6 +12,7 @@ dependencies = [
   "gunicorn>=23.0.0",
   "whitenoise>=6.7.0",
   "cryptography>=42.0.0",
+  "celery[redis]>=5.4.0,<6.0",
 ]
 
 [project.optional-dependencies]

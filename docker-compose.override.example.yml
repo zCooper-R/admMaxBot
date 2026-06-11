@@ -1,0 +1,14 @@
+services:
+  web:
+    environment:
+      APP_ENV: development
+      MAXBOT_ENV: development
+      DEBUG: "True"
+      PUBLIC_BASE_URL: ${NGROK_URL:-http://127.0.0.1:8000}
+      WEBHOOK_URL: ${NGROK_WEBHOOK_URL:-}
+    ports:
+      - "8000:8000"
+
+  db:
+    ports:
+      - "5432:5432"

@@ -76,3 +76,28 @@ def test_production_uses_database_cache_for_integration_status(monkeypatch):
 
     assert imported.CACHES["integration_status"]["BACKEND"] == "django.core.cache.backends.db.DatabaseCache"
     assert imported.CACHES["integration_status"]["LOCATION"] == "integration_status_cache"
+
+
+def test_app_env_alias_enables_production_settings(monkeypatch):
+    base_env = {
+        "APP_ENV": "production",
+        "DEBUG": "False",
+        "SECRET_KEY": "prod-secret",
+        "ALLOWED_HOSTS": "example.com",
+        "BASE_URL": "https://example.com",
+        "DATA_ENCRYPTION_KEY": "2fx0fboi0VyfM0D9uLF3sK7m3P4j_Sca2S6R9CVqgLk=",
+        "SECURITY_SSL_REDIRECT": "True",
+        "SECURITY_SESSION_COOKIE_SECURE": "True",
+        "SECURITY_CSRF_COOKIE_SECURE": "True",
+        "SECURITY_HSTS_SECONDS": "3600",
+    }
+    for key, value in base_env.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.delenv("MAXBOT_ENV", raising=False)
+    monkeypatch.delenv("PUBLIC_BASE_URL", raising=False)
+
+    imported = _import_settings_without_env_file(monkeypatch)
+
+    assert imported.MAXBOT_ENV == "production"
+    assert imported.PUBLIC_BASE_URL == "https://example.com"
+    assert imported.SECURE_PROXY_SSL_HEADER == ("HTTP_X_FORWARDED_PROTO", "https")

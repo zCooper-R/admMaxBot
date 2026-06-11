@@ -4,6 +4,21 @@
 
 Формат ориентирован на Keep a Changelog, а версионирование следует SemVer.
 
+## [0.3.0] - 2026-06-11
+
+### Added
+
+- Production Docker Compose-профиль с Redis, Celery worker и Celery beat.
+- Периодические задачи для обновления статуса интеграции MAX, синхронизации дневной аналитики и очистки технических логов.
+- Универсальные example-файлы для переменных окружения, nginx и Docker override.
+- Инструкция деплоя для HTTPS reverse proxy, миграций, health checks и мониторинга периодических задач.
+
+### Changed
+
+- Публичный webhook URL можно задавать явно через `WEBHOOK_URL`.
+- Django-настройки proxy теперь доверяют `X-Forwarded-Proto: https` для production-развертывания за reverse proxy.
+- Production-привязка web-порта настраивается через `WEB_APP_HOST` и `WEB_APP_PORT`.
+
 ## [0.2.0] - 2026-04-10
 
 ### Added
