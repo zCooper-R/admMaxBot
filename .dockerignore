@@ -4,6 +4,7 @@
 db.sqlite3
 runtime_check.sqlite3
 logs/
+backups/
 .venv/
 .pytest_cache/
 .mypy_cache/
