@@ -44,6 +44,7 @@ services:
       DB_WAIT_INTERVAL_SECONDS: "2"
       RUN_DB_MIGRATIONS: "false"
       RUN_COLLECTSTATIC: "true"
+      BACKUP_DIR: /app/backups
       TZ: ${TZ:-Europe/Moscow}
     depends_on:
       db:
@@ -81,6 +82,7 @@ services:
       LOG_DIR: /var/log/maxbot
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+      BACKUP_DIR: /app/backups
       TZ: ${TZ:-Europe/Moscow}
     depends_on:
       db:
@@ -89,11 +91,12 @@ services:
         condition: service_healthy
     volumes:
       - logs_data:/var/log/maxbot
+      - backup_data:/app/backups
     restart: unless-stopped
 
   celery_beat:
     build: .
-    command: ["celery", "-A", "config", "beat", "--loglevel=INFO", "--schedule=/tmp/celerybeat-schedule"]
+    command: ["celery", "-A", "config", "beat", "--loglevel=INFO"]
     env_file:
       - .env
     environment:
@@ -105,6 +108,7 @@ services:
       LOG_DIR: /var/log/maxbot
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/1}
+      BACKUP_DIR: /app/backups
       TZ: ${TZ:-Europe/Moscow}
     depends_on:
       db:
@@ -117,7 +121,7 @@ services:
 
   migrate:
     build: .
-    command: ["python", "manage.py", "migrate", "--noinput"]
+    command: ["sh", "-c", "python manage.py migrate --noinput && python manage.py sync_periodic_tasks"]
     env_file:
       - .env
     environment:
@@ -125,6 +129,7 @@ services:
       MAXBOT_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       DEBUG: "False"
+      BACKUP_DIR: /app/backups
       TZ: ${TZ:-Europe/Moscow}
     depends_on:
       db:
@@ -136,3 +141,4 @@ volumes:
   redis_data:
   static_data:
   logs_data:
+  backup_data:

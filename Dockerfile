@@ -22,7 +22,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libpq5 \
+    && apt-get install -y --no-install-recommends libpq5 postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 RUN addgroup --system app && adduser --system --ingroup app app
@@ -31,7 +31,7 @@ COPY --from=builder /build/wheels /wheels
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir /wheels/*
 
-RUN mkdir -p /var/log/maxbot /app/staticfiles && chown -R app:app /var/log/maxbot /app
+RUN mkdir -p /var/log/maxbot /app/staticfiles /app/backups && chown -R app:app /var/log/maxbot /app
 COPY --chown=app:app . /app
 
 USER app

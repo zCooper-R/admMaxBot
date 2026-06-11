@@ -34,6 +34,9 @@ env = environ.Env(
     CELERY_REFRESH_INTEGRATION_STATUS_INTERVAL_SECONDS=(int, 120),
     CELERY_SYNC_DAILY_STATS_INTERVAL_SECONDS=(int, 15 * 60),
     CELERY_CLEANUP_TECHNICAL_LOGS_INTERVAL_SECONDS=(int, 24 * 60 * 60),
+    BACKUP_DIR=(str, str(BASE_DIR / "backups")),
+    BACKUP_DAILY_RETENTION_DAYS=(int, 14),
+    BACKUP_WEEKLY_RETENTION_DAYS=(int, 56),
     DAILY_STATS_SYNC_WINDOW_DAYS=(int, 120),
     WEBHOOK_EVENT_RETENTION_DAYS=(int, 90),
     WEBHOOK_OPERATION_LOG_RETENTION_DAYS=(int, 90),
@@ -64,6 +67,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_celery_beat",
     "apps.core",
     "apps.accounts",
     "apps.bot",
@@ -189,20 +193,17 @@ CELERY_TASK_TIME_LIMIT = 60
 CELERY_TASK_SOFT_TIME_LIMIT = 45
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_TIMEZONE = TIME_ZONE
-CELERY_BEAT_SCHEDULE = {
-    "refresh-integration-status": {
-        "task": "apps.core.tasks.refresh_integration_status_task",
-        "schedule": env("CELERY_REFRESH_INTEGRATION_STATUS_INTERVAL_SECONDS"),
-    },
-    "sync-daily-stats": {
-        "task": "apps.analytics.tasks.sync_daily_stats_task",
-        "schedule": env("CELERY_SYNC_DAILY_STATS_INTERVAL_SECONDS"),
-    },
-    "cleanup-technical-logs": {
-        "task": "apps.bot.tasks.cleanup_technical_logs_task",
-        "schedule": env("CELERY_CLEANUP_TECHNICAL_LOGS_INTERVAL_SECONDS"),
-    },
-}
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_REFRESH_INTEGRATION_STATUS_INTERVAL_SECONDS = env(
+    "CELERY_REFRESH_INTEGRATION_STATUS_INTERVAL_SECONDS"
+)
+CELERY_SYNC_DAILY_STATS_INTERVAL_SECONDS = env("CELERY_SYNC_DAILY_STATS_INTERVAL_SECONDS")
+CELERY_CLEANUP_TECHNICAL_LOGS_INTERVAL_SECONDS = env(
+    "CELERY_CLEANUP_TECHNICAL_LOGS_INTERVAL_SECONDS"
+)
+BACKUP_DIR = Path(env("BACKUP_DIR"))
+BACKUP_DAILY_RETENTION_DAYS = env("BACKUP_DAILY_RETENTION_DAYS")
+BACKUP_WEEKLY_RETENTION_DAYS = env("BACKUP_WEEKLY_RETENTION_DAYS")
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_HTTPONLY = True

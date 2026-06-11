@@ -10,6 +10,7 @@ staticfiles/
 .mypy_cache/
 .ruff_cache/
 /logs/
+/backups/
 !templates/logs/
 .idea/
 .codex/

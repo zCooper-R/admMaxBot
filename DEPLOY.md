@@ -69,6 +69,9 @@ CELERY_CLEANUP_TECHNICAL_LOGS_INTERVAL_SECONDS=86400
 DAILY_STATS_SYNC_WINDOW_DAYS=120
 WEBHOOK_EVENT_RETENTION_DAYS=90
 WEBHOOK_OPERATION_LOG_RETENTION_DAYS=90
+BACKUP_DIR=/app/backups
+BACKUP_DAILY_RETENTION_DAYS=14
+BACKUP_WEEKLY_RETENTION_DAYS=56
 ```
 
 ## Запуск контейнеров
@@ -91,11 +94,16 @@ docker compose --env-file .env -f docker-compose.prod.yml logs -f
 
 ## Периодические задачи
 
-В production включены две Celery-задачи:
+Периодические Celery-задачи хранятся в БД через `django-celery-beat` и доступны в Django admin в разделе `Periodic tasks`.
+Команда `migrate` после миграций автоматически запускает `sync_periodic_tasks`, чтобы стандартное расписание было создано или обновлено.
+
+В production включены Celery-задачи:
 
 - `apps.core.tasks.refresh_integration_status_task` — каждые `120` секунд обновляет кеш статуса интеграции с MAX API.
 - `apps.analytics.tasks.sync_daily_stats_task` — каждые `900` секунд пересчитывает дневную аналитику за последние `120` дней.
 - `apps.bot.tasks.cleanup_technical_logs_task` — раз в сутки удаляет старые webhook-события и журналы операций старше `90` дней.
+- `apps.core.tasks.create_daily_database_backup_task` — каждый день в `03:00` создает backup БД.
+- `apps.core.tasks.create_weekly_database_backup_task` — каждое воскресенье в `04:00` создает недельный backup БД.
 
 Интервалы меняются через `.env`:
 
@@ -106,7 +114,13 @@ CELERY_CLEANUP_TECHNICAL_LOGS_INTERVAL_SECONDS=86400
 DAILY_STATS_SYNC_WINDOW_DAYS=120
 WEBHOOK_EVENT_RETENTION_DAYS=90
 WEBHOOK_OPERATION_LOG_RETENTION_DAYS=90
+BACKUP_DIR=/app/backups
+BACKUP_DAILY_RETENTION_DAYS=14
+BACKUP_WEEKLY_RETENTION_DAYS=56
 ```
+
+Backup-файлы хранятся в Docker volume `backup_data` в формате `pg_dump --format=custom`.
+Ежедневные backup-и очищаются старше `14` дней, еженедельные — старше `56` дней.
 
 Проверка логов периодики:
 

@@ -19,7 +19,7 @@ services:
   web:
     build: .
     restart: unless-stopped
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate && python manage.py sync_periodic_tasks && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
@@ -28,6 +28,7 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      BACKUP_DIR: /tmp/backups
     depends_on:
       db:
         condition: service_healthy
