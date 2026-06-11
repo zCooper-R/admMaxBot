@@ -142,6 +142,29 @@ sudo nginx -t
 sudo systemctl status nginx
 ```
 
+## Автообновление HTTPS-сертификата
+
+Пакет `certbot` на Debian включает systemd timer `certbot.timer`, который запускает проверку продления сертификатов два раза в день. После выпуска сертификата убедитесь, что timer включен:
+
+```bash
+sudo systemctl enable --now certbot.timer
+systemctl list-timers 'certbot*' --no-pager
+sudo certbot renew --dry-run
+```
+
+Если сертификат выпущен через nginx plugin, Certbot сам перезагружает nginx после успешного продления. Для явного deploy hook можно добавить:
+
+```bash
+sudo certbot renew --deploy-hook "systemctl reload nginx"
+```
+
+Проверка срока действия сертификата:
+
+```bash
+sudo certbot certificates
+openssl s_client -connect <domain>:443 -servername <domain> </dev/null 2>/dev/null | openssl x509 -noout -dates
+```
+
 ## OPNsense
 
 Настройте NAT/Port Forward:
