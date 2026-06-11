@@ -4,6 +4,12 @@
 
 Формат ориентирован на Keep a Changelog, а версионирование следует SemVer.
 
+## [0.3.3] - 2026-06-11
+
+### Fixed
+
+- Docker healthcheck теперь отправляет production-домен в заголовке `Host`, чтобы проверка `/health/` не конфликтовала с `ALLOWED_HOSTS`.
+
 ## [0.3.2] - 2026-06-11
 
 ### Fixed
