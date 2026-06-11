@@ -1,6 +1,6 @@
 [project]
 name = "maxbotv3"
-version = "0.3.1"
+version = "0.3.2"
 description = "Production-ready MAX bot control panel on Django"
 readme = "README.md"
 requires-python = ">=3.12"

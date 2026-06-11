@@ -31,7 +31,7 @@ COPY --from=builder /build/wheels /wheels
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir /wheels/*
 
-RUN mkdir -p /var/log/maxbot && chown -R app:app /var/log/maxbot /app
+RUN mkdir -p /var/log/maxbot /app/staticfiles && chown -R app:app /var/log/maxbot /app
 COPY --chown=app:app . /app
 
 USER app

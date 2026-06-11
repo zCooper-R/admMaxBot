@@ -4,6 +4,12 @@
 
 Формат ориентирован на Keep a Changelog, а версионирование следует SemVer.
 
+## [0.3.2] - 2026-06-11
+
+### Fixed
+
+- Production Docker-образ теперь заранее создаёт `/app/staticfiles`, чтобы `collectstatic` мог писать в volume от non-root пользователя `app`.
+
 ## [0.3.1] - 2026-06-11
 
 ### Added
