@@ -1,4 +1,4 @@
-from django.contrib.auth.hashers import identify_hasher
+from django.contrib.auth.hashers import identify_hasher, make_password
 from django.db import migrations
 
 
@@ -9,7 +9,7 @@ def hash_plaintext_passwords(apps, schema_editor):
         try:
             identify_hasher(user.password)
         except ValueError:
-            user.set_password(user.password)
+            user.password = make_password(user.password)
             user.save(update_fields=["password"])
 
 

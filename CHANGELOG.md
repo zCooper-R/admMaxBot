@@ -4,6 +4,12 @@
 
 Формат ориентирован на Keep a Changelog, а версионирование следует SemVer.
 
+## [0.3.7] - 2026-06-11
+
+### Fixed
+
+- Миграция хеширования plaintext-паролей использует `make_password()`, совместимый с historical model в Django migrations.
+
 ## [0.3.6] - 2026-06-11
 
 ### Fixed
